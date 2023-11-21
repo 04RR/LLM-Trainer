@@ -1,0 +1,31 @@
+model_name_or_path: "stabilityai/stablelm-3b-4e1t"
+auth_token: "your_auth_token_here"
+rank: 16
+bnb_config:
+  load_in_4bit: true
+  bnb_4bit_use_double_quant: true
+  bnb_4bit_quant_type: "nf4"
+lora_dropout: 0.05
+lora_bias: "none"
+task_type: "CAUSAL_LM"
+target_modules:
+  - "q_proj"
+  - "v_proj"
+  - "k_proj"
+  - "lm_head"
+data_csv_path: "path_to_your_csv_file.csv"
+output_dir: "output/no_robot/"
+training_arguments:
+  auto_find_batch_size: true
+  gradient_accumulation_steps: 4
+  num_train_epochs: 2
+  warmup_steps: 4
+  learning_rate: 2e-4
+  fp16: true
+  save_safetensors: true
+  save_steps: 100
+  save_strategy: "steps"
+  logging_steps: 50
+  output_dir: "output/no_robot/"
+  optim: "paged_adamw_8bit"
+  report_to: null
