@@ -3,21 +3,25 @@ import warnings
 import transformers
 import pandas as pd
 import bitsandbytes as bnb
+import yaml
 from datasets import Dataset
 from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
-warnings.filterwarnings("ignore")
+with open("train_config.yaml", "r") as file:
+    config = yaml.safe_load(file)
 
-model_name_or_path = "stabilityai/stablelm-3b-4e1t"
-auth_token = ""
-rank = 16
+model_name_or_path = config["model_name_or_path"]
+auth_token = config["auth_token"]
+rank = config["rank"]
 bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_use_double_quant=True,
-    bnb_4bit_quant_type="nf4",
+    load_in_4bit=config["bnb_config"]["load_in_4bit"],
+    bnb_4bit_use_double_quant=config["bnb_config"]["bnb_4bit_use_double_quant"],
+    bnb_4bit_quant_type=config["bnb_config"]["bnb_4bit_quant_type"],
     bnb_4bit_compute_dtype=torch.bfloat16,
 )
+
+warnings.filterwarnings("ignore")
 
 model = AutoModelForCausalLM.from_pretrained(
     model_name_or_path,
@@ -31,10 +35,9 @@ model = AutoModelForCausalLM.from_pretrained(
 tokenizer = AutoTokenizer.from_pretrained(
     model_name_or_path,
     token=auth_token,
-    # model_max_length=512,
+    # model_max_length=config.get('tokenizer_max_length', 512),
 )
 
-# model.gradient_checkpointing_enable()
 model = prepare_model_for_kbit_training(model)
 
 
@@ -53,27 +56,15 @@ def find_all_linear_names(model, bits):
     return list(lora_module_names)
 
 
-# target_modules = find_all_linear_names(model, 8)
-# target_modules.append("lm_head")
-
-target_modules = [
-    # "gate_proj",
-    "q_proj",
-    "v_proj",
-    # "o_proj",
-    # "down_proj",
-    # "up_proj",
-    "k_proj",
-    "lm_head",
-]
+target_modules = config["target_modules"]
 
 config = LoraConfig(
     r=rank,
     lora_alpha=rank * 2,
     target_modules=target_modules,
-    lora_dropout=0.05,
-    bias="none",
-    task_type="CAUSAL_LM",
+    lora_dropout=config["lora_dropout"],
+    bias=config["lora_bias"],
+    task_type=config["task_type"],
 )
 
 model = get_peft_model(model, config)
@@ -95,7 +86,7 @@ def print_trainable_parameters(model):
 
 print_trainable_parameters(model)
 
-data = pd.read_csv("no_robot/train_prompt.csv")
+data = pd.read_csv(config["data_csv_path"])
 data = data.sample(frac=1).reset_index(drop=True)
 
 data = Dataset.from_pandas(data)
@@ -106,25 +97,11 @@ tokenizer.pad_token = tokenizer.eos_token
 trainer = transformers.Trainer(
     model=model,
     train_dataset=data,
-    args=transformers.TrainingArguments(
-        auto_find_batch_size=True,
-        gradient_accumulation_steps=4,
-        num_train_epochs=2,
-        warmup_steps=4,
-        learning_rate=2e-4,
-        fp16=True,
-        save_safetensors=True,
-        save_steps=100,
-        save_strategy="steps",
-        logging_steps=50,
-        output_dir="output/no_robot/",
-        optim="paged_adamw_8bit",
-        report_to=None,
-    ),
+    args=transformers.TrainingArguments(**config["training_arguments"]),
     data_collator=transformers.DataCollatorForLanguageModeling(tokenizer, mlm=False),
 )
 model.config.use_cache = False
 trainer.train()
 
-model.save_pretrained("output/no_robot/")
-tokenizer.save_pretrained("output/no_robot/")
+model.save_pretrained(config["output_dir"])
+tokenizer.save_pretrained(config["output_dir"])
