@@ -58,7 +58,7 @@ def find_all_linear_names(model, bits):
 
 target_modules = config["target_modules"]
 
-config = LoraConfig(
+lora_config = LoraConfig(
     r=rank,
     lora_alpha=rank * 2,
     target_modules=target_modules,
@@ -67,7 +67,7 @@ config = LoraConfig(
     task_type=config["task_type"],
 )
 
-model = get_peft_model(model, config)
+model = get_peft_model(model, lora_config)
 
 
 def print_trainable_parameters(model):
