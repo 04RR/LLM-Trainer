@@ -90,7 +90,7 @@ data = pd.read_csv(config["data_csv_path"])
 data = data.sample(frac=1).reset_index(drop=True)
 
 data = Dataset.from_pandas(data)
-data = data.map(lambda samples: tokenizer(samples["data"]), batched=True)
+data = data.map(lambda samples: tokenizer(samples[config["data_column_name"]]), batched=True)
 
 tokenizer.pad_token = tokenizer.eos_token
 
