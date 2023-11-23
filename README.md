@@ -20,7 +20,8 @@ pip install -r requirements.txt
 This YAML file contains configuration settings for the training process. Update the auth_token with your token and adjust other parameters as per your requirement.
 
 ## Training the Model (lora_train.py)
-The lora_train.py script trains the model based on the configuration provided in lora_config.yaml.
+The lora_train.py script trains the model based on the configuration provided in lora_config.yaml. 
+Please make sure the data you have is in the appropriate format and mention the column name that has the data in the config file.
 
 To start the training process, make sure all the values in the lora_config.yaml file are correct and then run the training script:
 
