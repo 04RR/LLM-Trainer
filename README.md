@@ -1,7 +1,7 @@
 # Train LLMs with qLoRA!
 
 ## Introduction
-This repository contains scripts and configurations for training and merging models using LoRA (Low-Rank Adaptation) and BitsAndBytes for efficient AI model training.
+This repository contains scripts and configurations for training and merging models using the qLoRA method for efficient model training.
 
 ## Prerequisites
 - Python 3.x
@@ -22,7 +22,7 @@ This YAML file contains configuration settings for the training process. Update 
 ## Training the Model (lora_train.py)
 The lora_train.py script trains the model based on the configuration provided in lora_config.yaml.
 
-To run the training script:
+To start the training process, make sure all the values in the lora_config.yaml file are correct and then run the training script:
 
 ```bash
 python lora_train.py
