@@ -6,9 +6,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 warnings.filterwarnings("ignore")
 
 model_name_or_path = "WizardLM/WizardCoder-3B-V1.0"
-auth_token = ""
-out_folder_path = "lora/mathv1"
-lora_checkpoint_path = "output/math"
+auth_token = "" # FILL IN DETAILS
+out_folder_path = "" # FILL IN DETAILS
+lora_checkpoint_path = "" # FILL IN DETAILS
 device = "cuda:0"
 
 tokenizer = AutoTokenizer.from_pretrained(
