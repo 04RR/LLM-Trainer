@@ -21,7 +21,7 @@ training_arguments:
   gradient_accumulation_steps: 4
   num_train_epochs: 2
   warmup_steps: 4
-  learning_rate: 2e-4
+  learning_rate: 0.0002
   fp16: true
   save_safetensors: true
   save_steps: 100
