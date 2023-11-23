@@ -8,7 +8,7 @@ from datasets import Dataset
 from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
-with open("train_config.yaml", "r") as file:
+with open("lora_config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
 model_name_or_path = config["model_name_or_path"]
